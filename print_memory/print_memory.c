@@ -5,58 +5,54 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: exam <marvin@42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/11/10 16:27:47 by exam              #+#    #+#             */
-/*   Updated: 2017/11/10 22:47:12 by ahrytsen         ###   ########.fr       */
+/*   Created: 2017/12/19 10:01:43 by exam              #+#    #+#             */
+/*   Updated: 2017/12/19 11:24:29 by exam             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <unistd.h>
 
-void	print_ascii(const unsigned char *adr, int size)
+void	print_ascii(unsigned char *str, size_t size, size_t i)
 {
-	int i;
+	size_t	st;
 
-	i = size;
-	while (i < 16)
+	st = i - 15;
+	while (st <= i && st < size)
 	{
-		write(1, "  ", 2);
-		if (i % 2)
-			write(1, " ", 1);
-		i++;
-	}
-	while (size--)
-	{
-		if (*adr > 31 && *adr < 127)
-			write(1, adr, 1);
+		if (str[st] > 31 && str[st] < 127)
+			write(1, str + st, 1);
 		else
 			write(1, ".", 1);
-		adr++;
+		st++;
 	}
+	write(1, "\n", 1);
 }
 
 void	print_memory(const void *addr, size_t size)
 {
-	const unsigned char	*a;
-	unsigned char		tmp;
-	int					i;
+	size_t			i;
+	unsigned char	tmp;
+	unsigned char	*adr;
+	size_t			map_size;
 
-	a = addr;
-	while (size)
+	adr = (unsigned char*)addr;
+	i = 0;
+	map_size = (size % 16) ? (size + 16 - size % 16) : size;
+	while (i < map_size)
 	{
-		i = 0;
-		while (i < 16 && (size - i))
+		if (i < size)
 		{
-			tmp = a[i] / 16 >= 10 ? a[i] / 16 + 'a' - 10 : a[i] / 16 + '0';
+			tmp = adr[i] / 16;
+			tmp = tmp > 9 ? tmp - 10 + 'a' : tmp + '0';
 			write(1, &tmp, 1);
-			tmp = a[i] % 16 >= 10 ? a[i] % 16 + 'a' - 10 : a[i] % 16 + '0';
+			tmp = adr[i] % 16;
+			tmp = tmp > 9 ? tmp - 10 + 'a' : tmp + '0';
 			write(1, &tmp, 1);
-			if (i % 2)
-				write(1, " ", 1);
-			i++;
 		}
-		print_ascii(a, i);
-		write(1, "\n", 1);
-		a += i;
-		size -= i;
+		else
+			write(1, "  ", 2);
+		(i % 2) ? write(1, " ", 1) : 0;
+		(!((i + 1) % 16)) ? print_ascii(adr, size, i) : 0;
+		i++;
 	}
 }
